@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #7F00FF, #E100FF);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .phone {
+      width: 300px;
+      height: 620px;
+      background: linear-gradient(to bottom, #2E2EFD, #892CDC);
+      border-radius: 40px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      color: #fff;
+    } 
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .highlight {
+      color: #FFD700;
+    }
+
+    .get-start {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background: #FFD700;
+      color: #000;
+      border: none;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    input {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 20px;
+      border: none;
+      width: 80%;
+      text-align: center;
+    }
+
+    .search-btn {
+      background: #FFD700;
+      color: black;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-weight: bold;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      border-radius: 16px;
+      width: 100%;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .weather-icon {
+      width: 60px;
+    }
+
+    .big-temp {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .detail-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .detail-box {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .detail-box span {
+      font-size: 13px;
+    }
+
+    .detail-box strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Welcome screen -->
+  <div class="screen active" id="welcomeScreen">
+    <img src="https://cdn-icons-png.flaticon.com/512/1163/1163661.png" width="80" alt="Cloud icon">
+    <div class="logo">Weather <span class="highlight">ForeCasts</span></div>
+    <button class="get-start" onclick="startApp()">Get Start</button>
+  </div>
+
+  <!-- Weather screen -->
+  <div class="screen" id="weatherScreen">
+    <input type="text" id="cityInput" placeholder="Enter city..." />
+    <button class="search-btn" onclick="fetchWeather()">Search</button>
+
+    <div class="info-box" id="weatherInfo" style="display:none;">
+      <img class="weather-icon" id="weatherIcon" src="" alt="">
+      <div class="big-temp" id="temperature">--°C</div>
+      <div id="condition">--</div>
+      <div id="location">--</div>
+    </div>
+
+    <div class="detail-grid" id="extraDetails" style="display: none;">
+      <div class="detail-box">
+        <span>Humidity</span>
+        <strong id="humidity">--%</strong>
+      </div>
+      <div class="detail-box">
+        <span>Wind</span>
+        <strong id="wind">-- kph</strong>
+      </div>
+      <div class="detail-box">
+        <span>UV Index</span>
+        <strong id="uv">--</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function startApp() {
+    document.getElementById("welcomeScreen").classList.remove("active");
+    document.getElementById("weatherScreen").classList.add("active");
+  }
+
+  async function fetchWeather() {
+    const city = document.getElementById("cityInput").value.trim();
+    if (!city) return alert("Please enter a city name.");
+
+    const apiKey = "b280e9e139224961aa3103904251206";
+    const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(city)}&aqi=yes`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      document.getElementById("weatherIcon").src = "https:" + data.current.condition.icon;
+      document.getElementById("temperature").textContent = data.current.temp_c + "°C";
+      document.getElementById("condition").textContent = data.current.condition.text;
+      document.getElementById("location").textContent = data.location.name + ", " + data.location.country;
+      document.getElementById("humidity").textContent = data.current.humidity + "%";
+      document.getElementById("wind").textContent = data.current.wind_kph + " kph";
+      document.getElementById("uv").textContent = data.current.uv;
+
+      document.getElementById("weatherInfo").style.display = "block";
+      document.getElementById("extraDetails").style.display = "flex";
+
+    } catch (err) {
+      alert("City not found!");
+    }
+  }
+</script>
+
+</body>
+</html>
